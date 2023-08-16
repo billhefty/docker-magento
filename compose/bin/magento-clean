@@ -2,10 +2,10 @@
 set -o errexit
 
 echo "Running setup..."
-bin/magento setup:upgrade
+bin/clinotty bin/magento setup:upgrade
 
 echo "Compiling..."
-bin/magento setup:di:compile
+bin/clinotty bin/magento setup:di:compile
 
 echo "Forcing deploy of static content..."
 bin/clinotty bin/magento setup:static-content:deploy -f
