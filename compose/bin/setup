@@ -49,12 +49,6 @@ bin/clinotty bin/magento cron:install
 echo "Turning on developer mode..."
 bin/clinotty bin/magento deploy:mode:set developer
 
-echo "Installing Magento sample data..."
-bin/clinotty bin/magento sampledata:deploy
-
-echo "Running Magento setup and clean steps..."
-bin/magento-clean
-
 cp -r .vscode src/
 
 echo "Docker development environment setup complete."

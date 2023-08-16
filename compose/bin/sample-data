@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -o errexit
+
+echo "Installing Magento sample data..."
+bin/clinotty bin/magento sampledata:deploy
+
+bin/magento-clean
