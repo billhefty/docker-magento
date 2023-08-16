@@ -30,12 +30,6 @@ bin/clinotty bin/magento module:disable Magento_TwoFactorAuth
 echo "Copying files from container to host after install..."
 bin/copyfromcontainer --all
 
-echo "Installing Magento sample data..."
-bin/clinotty bin/magento sampledata:deploy
-
-echo "Running Magento setup and clean steps..."
-bin/magento-clean
-
 echo "Re-indexing with Elasticsearch..."
 bin/clinotty bin/magento indexer:reindex
 
@@ -54,6 +48,12 @@ bin/clinotty bin/magento cron:install
 
 echo "Turning on developer mode..."
 bin/clinotty bin/magento deploy:mode:set developer
+
+echo "Installing Magento sample data..."
+bin/clinotty bin/magento sampledata:deploy
+
+echo "Running Magento setup and clean steps..."
+bin/magento-clean
 
 cp -r .vscode src/
 
