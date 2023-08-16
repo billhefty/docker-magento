@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -o errexit
+
+ENVIRONMENT=${1:-platformsandbox}
+
+if [[ ! "${ENVIRONMENT}" =~ ^(platformsandbox|dev|development|stage|acceptance|demo)$ ]]; then
+    echo "Invalid environment: ${ENVIRONMENT}"
+    exit 1
+fi
+
+# If the environment is "dev" we need change it to "development" for the SDK to target the correct API
+if [[ "${ENVIRONMENT}" == "dev" ]]; then
+    ENVIRONMENT="development"
+fi
+
+# Set EXTEND_API_URL environment variable based on the value of ENVIRONMENT
+if [[ "${ENVIRONMENT}" == "platformsandbox" ]]; then
+    EXTEND_API_URL="https://api-platformsandbox.helloextend.com/"
+elif [[ "${ENVIRONMENT}" == "development" ]]; then
+    EXTEND_API_URL="https://api-dev.helloextend.com/"
+elif [[ "${ENVIRONMENT}" == "stage" ]]; then
+    EXTEND_API_URL="https://api-stage.helloextend.com/"
+elif [[ "${ENVIRONMENT}" == "acceptance" ]]; then
+    EXTEND_API_URL="https://api-acceptance.helloextend.com/"
+elif [[ "${ENVIRONMENT}" == "demo" ]]; then
+    EXTEND_API_URL="https://api-demo.helloextend.com/"
+fi
+
+echo "Adding magento-extension repository to composer.json..."
+bin/composer config repositories.extend git "https://github.com/helloextend/magento-extension/"
+
+echo "Installing extend/module-warranty:dev-master..."
+bin/composer require extend/module-warranty:dev-master
+
+echo "Setting DEMO auth mode value to ${ENVIRONMENT}..."
+bin/clinotty sed -i 's/'demo'/'"${ENVIRONMENT}"'/g' vendor/extend/module-warranty/Model/Config/Source/AuthMode.php
+
+echo "Setting sandbox_api_url to ${EXTEND_API_URL}..."
+bin/clinotty sed -i 's+<sandbox_api_url>https://api-demo.helloextend.com/</sandbox_api_url>+<sandbox_api_url>'"${EXTEND_API_URL}"'</sandbox_api_url>+g' vendor/extend/module-warranty/etc/config.xml
+
+echo "Running setup..."
+bin/magento setup:upgrade
+
+echo "Compiling..."
+bin/magento setup:di:compile
+
+echo "Forcing deploy of static content..."
+bin/clinotty bin/magento setup:static-content:deploy -f
+
+echo "Clearing the cache to apply updates..."
+bin/clinotty bin/magento cache:flush

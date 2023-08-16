@@ -131,12 +131,12 @@ mkdir -p ~/Sites/magento
 cd $_
 
 # Run this automated one-liner from the directory you want to install your project.
-curl -s https://raw.githubusercontent.com/markshust/docker-magento/master/lib/onelinesetup | bash -s -- magento.test 2.4.6 community
+curl -s https://raw.githubusercontent.com/markshust/docker-magento/master/lib/onelinesetup | bash -s -- magento.local 2.4.6 community
 ```
 
-The `magento.test` above defines the hostname to use, and the `2.4.6` defines the Magento version to install. Note that since we need a write to `/etc/hosts` for DNS resolution, you will be prompted for your system password during setup.
+The `magento.local` above defines the hostname to use, and the `2.4.6` defines the Magento version to install. Note that since we need a write to `/etc/hosts` for DNS resolution, you will be prompted for your system password during setup.
 
-After the one-liner above completes running, you should be able to access your site at `https://magento.test`.
+After the one-liner above completes running, you should be able to access your site at `https://magento.local`.
 
 #### Install sample data
 
@@ -149,7 +149,7 @@ bin/magento setup:upgrade
 
 ### Manual Setup
 
-Same result as the one-liner above. Just replace `magento.test` references with the hostname that you wish to use.
+Same result as the one-liner above. Just replace `magento.local` references with the hostname that you wish to use.
 
 #### New Projects
 
@@ -186,9 +186,9 @@ bin/download 2.4.6 community
 #  --search-engine=elasticsearch7 \
 
 # Run the setup installer for Magento:
-bin/setup magento.test
+bin/setup magento.local
 
-open https://magento.test
+open https://magento.local
 ```
 
 #### Existing Projects
@@ -230,7 +230,7 @@ bin/setup-domain yoursite.test
 
 bin/restart
 
-open https://magento.test
+open https://magento.local
 ```
 
 ### Elasticsearch vs OpenSearch
@@ -303,12 +303,12 @@ It is recommended to keep your root docker config files in one repository, and y
 - `bin/restart`: Stop and then start all containers.
 - `bin/root`: Run any CLI command as root without going into the bash prompt. Ex `bin/root apt-get install nano`
 - `bin/rootnotty`: Run any CLI command as root with no TTY. Ex `bin/rootnotty chown -R app:app /var/www/html`
-- `bin/setup`: Run the Magento setup process to install Magento from the source code, with optional domain name. Defaults to `magento.test`. Ex. `bin/setup magento.test`
+- `bin/setup`: Run the Magento setup process to install Magento from the source code, with optional domain name. Defaults to `magento.local`. Ex. `bin/setup magento.local`
 - `bin/setup-composer-auth`: Setup authentication credentials for Composer.
-- `bin/setup-domain`: Setup Magento domain name. Ex: `bin/setup-domain magento.test`
+- `bin/setup-domain`: Setup Magento domain name. Ex: `bin/setup-domain magento.local`
 - `bin/setup-grunt`: Install and configure Grunt JavaScript task runner to compile .less files
-- `bin/setup-pwa-studio`: (BETA) Install PWA Studio (requires NodeJS and Yarn to be installed on the host machine). Pass in your base site domain, otherwise the default `master-7rqtwti-mfwmkrjfqvbjk.us-4.magentosite.cloud` will be used. Ex: `bin/setup-pwa-studio magento.test`
-- `bin/setup-ssl`: Generate an SSL certificate for one or more domains. Ex. `bin/setup-ssl magento.test foo.test`
+- `bin/setup-pwa-studio`: (BETA) Install PWA Studio (requires NodeJS and Yarn to be installed on the host machine). Pass in your base site domain, otherwise the default `master-7rqtwti-mfwmkrjfqvbjk.us-4.magentosite.cloud` will be used. Ex: `bin/setup-pwa-studio magento.local`
+- `bin/setup-ssl`: Generate an SSL certificate for one or more domains. Ex. `bin/setup-ssl magento.local foo.test`
 - `bin/setup-ssl-ca`: Generate a certificate authority and copy it to the host.
 - `bin/start`: Start all containers, good practice to use this instead of `docker-compose up -d`, as it may contain additional helpers.
 - `bin/status`: Check the container status.
@@ -498,21 +498,21 @@ Otherwise, this project now automatically sets up Xdebug support with VS Code. I
 
 5. Open `PhpStorm > Preferences > PHP > Servers` and create a new server:
 
-    * For the Name, set this to the value of your domain name (ex. `magento.test`).
-    * For the Host, set this to the value of your domain name (ex. `magento.test`).
+    * For the Name, set this to the value of your domain name (ex. `magento.local`).
+    * For the Host, set this to the value of your domain name (ex. `magento.local`).
     * Keep port set to `80`.
     * Check the "Use path mappings" box and map `src` to the absolute path of `/var/www/html`.
 
 6. Go to `Run > Edit Configurations` and create a new `PHP Remote Debug` configuration.
 
-    * Set the Name to the name of your domain (ex. `magento.test`).
+    * Set the Name to the name of your domain (ex. `magento.local`).
     * Check the `Filter debug connection by IDE key` checkbox, select the Server you just setup.
     * For IDE key, enter `PHPSTORM`. This value should match the IDE Key value set by the Chrome Xdebug Helper.
     * Click OK to finish setting up the remote debugger in PHPStorm.
 
 7. Open up `pub/index.php` and set a breakpoint near the end of the file.
 
-    * Start the debugger with `Run > Debug 'magento.test'`, then open up a web browser.
+    * Start the debugger with `Run > Debug 'magento.local'`, then open up a web browser.
     * Ensure the Chrome Xdebug helper is enabled by clicking on it and selecting Debug. The icon should turn bright green.
     * Navigate to your Magento store URL, and Xdebug should now trigger the debugger within PhpStorm at the toggled breakpoint.
 

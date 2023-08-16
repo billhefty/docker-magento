@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -o errexit
+
+echo "Running setup..."
+bin/magento setup:upgrade
+
+echo "Compiling..."
+bin/magento setup:di:compile
+
+echo "Forcing deploy of static content..."
+bin/clinotty bin/magento setup:static-content:deploy -f
+
+echo "Clearing the cache to apply updates..."
+bin/clinotty bin/magento cache:flush
