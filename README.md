@@ -33,8 +33,8 @@ View Dockerfiles for the latest tags:
   - [`8.1-fpm`, `8.1-fpm-1`](images/php/8.1)
   - [`8.2-fpm-develop`](images/php/8.2)
 - [markoshust/magento-opensearch (Docker Hub)](https://hub.docker.com/r/markoshust/magento-opensearch/)
-    - [`1.2`, `1.2-0`](images/opensearch/1.2)
-    - [`2.4-develop`](images/opensearch/2.4)
+  - [`1.2`, `1.2-0`](images/opensearch/1.2)
+  - [`2.4-develop`](images/opensearch/2.4)
 - [markoshust/magento-elasticsearch (Docker Hub)](https://hub.docker.com/r/markoshust/magento-elasticsearch/)
   - [`7.17`, `7.17-0`](images/elasticsearch/7.17)
   - [`8.4-develop`](images/elasticsearch/8.4)
@@ -162,10 +162,10 @@ cd $_
 curl -s https://raw.githubusercontent.com/markshust/docker-magento/master/lib/template | bash
 
 # Download the version of Magento you want to use with:
-bin/download 2.4.6 community
+bin/download 2.4.6-p2 community
 # You can specify the version and type (community, enterprise, mageos, mageos-nightly, mageos-mirror, mageos-hypernode-mirror, or mageos-maxcluster-mirror).
 # The mageos type is an alias for mageos-mirror.
-# If no arguments are passed, "2.4.6" and "community" are the default values used.
+# If no arguments are passed, "2.4.6-p2" and "community" are the default values used.
 
 # or for Magento core development:
 # bin/start --no-dev
@@ -234,7 +234,9 @@ open https://magento.local
 ```
 
 ### Elasticsearch vs OpenSearch
+
 OpenSearch is set as the default search engine when setting up this project. Follow the instructions below if you want to use Elasticsearch instead:
+
 1. Comment out or remove the `opensearch` container in both the [`compose.yaml`](https://github.com/markshust/docker-magento/blob/master/compose/compose.yaml#L55-L66) and [`compose.healthcheck.yaml`](https://github.com/markshust/docker-magento/blob/master/compose/compose.healthcheck.yaml#L38-L43) files
 2. Uncomment the `elasticsearch` container in both the [`compose.yaml`](https://github.com/markshust/docker-magento/blob/master/compose/compose.yaml#L70-L81) and [`compose.healthcheck.yaml`](https://github.com/markshust/docker-magento/blob/master/compose/compose.healthcheck.yaml#L45-L50) files
 3. Update the `bin/setup-install` command to use the Elasticsearch ratther than OpenSearch. Change:
@@ -279,7 +281,7 @@ It is recommended to keep your root docker config files in one repository, and y
 - `bin/dev-urn-catalog-generate`: Generate URN's for PhpStorm and remap paths to local host. Restart PhpStorm after running this command.
 - `bin/devconsole`: Alias for `bin/n98-magerun2 dev:console`
 - `bin/docker-compose`: Support V1 (`docker-compose`) and V2 (`docker compose`) docker compose command, and use custom configuration files, such as `compose.yml` and `compose.dev.yml`
-- `bin/download`: Download specific Magento version from Composer to the container, with optional arguments of the version (2.4.6 [default]) and type ("community" [default], "enterprise", or "mageos"). Ex. `bin/download 2.4.6 enterprise`
+- `bin/download`: Download specific Magento version from Composer to the container, with optional arguments of the version (2.4.6-p2 [default]) and type ("community" [default], "enterprise", or "mageos"). Ex. `bin/download 2.4.6-p2 enterprise`
 - `bin/debug-cli`: Enable Xdebug for bin/magento, with an optional argument of the IDE key. Defaults to PHPSTORM Ex. `bin/debug-cli enable PHPSTORM`
 - `bin/fixowns`: This will fix filesystem ownerships within the container.
 - `bin/fixperms`: This will fix filesystem permissions within the container.
@@ -370,10 +372,13 @@ bin/mysqldump > magento.sql
 ```
 
 > Getting an "Access denied, you need (at least one of) the SUPER privilege(s) for this operation." message when running one of the above lines? Try running it as root with:
+>
 > ```
 > bin/clinotty mysql -hdb -uroot -pmagento magento < src/backup.sql
 > ```
+>
 > You can also remove the DEFINER lines from the MySQL backup file with:
+>
 > ```
 > sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i src/backup.sql
 > ```
@@ -430,50 +435,56 @@ Otherwise, this project now automatically sets up Xdebug support with VS Code. I
 2. Install the [`PHP Debug`](https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug) extension on VS Code.
 3. Create a new configuration file inside the project. Go to the `Run and Debug` section in VS Code, then click on `create a launch.json file`.
 4. Attention to the following configs inside the file:
-    * The port must be the same as the port on the xdebug.ini file.
-    ```bash
-      bin/cli cat /usr/local/etc/php/php.ini
-    ```
-    ```bash
-      memory_limit = 4G
-      max_execution_time = 1800
-      zlib.output_compression = On
-      cgi.fix_pathinfo = 0
-      date.timezone = UTC
 
-      xdebug.mode = debug
-      xdebug.client_host = host.docker.internal
-      xdebug.idekey = PHPSTORM
-      xdebug.client_port=9003
-      #You can uncomment the following line to force the debug with each request
-      #xdebug.start_with_request=yes
+   - The port must be the same as the port on the xdebug.ini file.
 
-      upload_max_filesize = 100M
-      post_max_size = 100M
-      max_input_vars = 10000
-    ```
-    * The pathMappings should have the same folder path as the project inside the Docker container.
-    ```json
-      {
-          "version": "0.2.0",
-          "configurations": [
-              {
-                  "name": "Listen for XDebug",
-                  "type": "php",
-                  "request": "launch",
-                  "port": 9003,
-                  "pathMappings": {
-                      "/var/www/html": "${workspaceFolder}"
-                  },
-                  "hostname": "localhost"
-              }
-          ]
-      }
-    ```
+   ```bash
+     bin/cli cat /usr/local/etc/php/php.ini
+   ```
+
+   ```bash
+     memory_limit = 4G
+     max_execution_time = 1800
+     zlib.output_compression = On
+     cgi.fix_pathinfo = 0
+     date.timezone = UTC
+
+     xdebug.mode = debug
+     xdebug.client_host = host.docker.internal
+     xdebug.idekey = PHPSTORM
+     xdebug.client_port=9003
+     #You can uncomment the following line to force the debug with each request
+     #xdebug.start_with_request=yes
+
+     upload_max_filesize = 100M
+     post_max_size = 100M
+     max_input_vars = 10000
+   ```
+
+   - The pathMappings should have the same folder path as the project inside the Docker container.
+
+   ```json
+   {
+     "version": "0.2.0",
+     "configurations": [
+       {
+         "name": "Listen for XDebug",
+         "type": "php",
+         "request": "launch",
+         "port": 9003,
+         "pathMappings": {
+           "/var/www/html": "${workspaceFolder}"
+         },
+         "hostname": "localhost"
+       }
+     ]
+   }
+   ```
+
 5. Run the following command in the Windows Powershell. It allows WSL through the firewall, otherwise breakpoints might not be hitten.
-    ```powershell
-    New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)"  -Action Allow
-    ```
+   ```powershell
+   New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)"  -Action Allow
+   ```
 
 ### Xdebug & PhpStorm
 
@@ -483,44 +494,45 @@ Otherwise, this project now automatically sets up Xdebug support with VS Code. I
 
 3.  Then, open `PhpStorm > Preferences > PHP` and configure:
 
-    * `CLI Interpreter`
-        * Create a new interpreter from the `From Docker, Vagrant, VM...` list.
-        * Select the Docker Compose option.
-        * For Server, select `Docker`. If you don't have Docker set up as a server, create one and name it `Docker`.
-        * For Configuration files, add both the `compose.yaml` and `compose.dev.yaml` files from your project directory.
-        * For Service, select `phpfpm`, then click OK.
-        * Name this CLI Interpreter `phpfpm`, then click OK again.
+    - `CLI Interpreter`
 
-    * `Path mappings`
-        * There is no need to define a path mapping in this area.
+      - Create a new interpreter from the `From Docker, Vagrant, VM...` list.
+      - Select the Docker Compose option.
+      - For Server, select `Docker`. If you don't have Docker set up as a server, create one and name it `Docker`.
+      - For Configuration files, add both the `compose.yaml` and `compose.dev.yaml` files from your project directory.
+      - For Service, select `phpfpm`, then click OK.
+      - Name this CLI Interpreter `phpfpm`, then click OK again.
 
-4. Open `PhpStorm > Preferences > PHP > Debug` and ensure Debug Port is set to `9000,9003`.
+    - `Path mappings`
+      - There is no need to define a path mapping in this area.
 
-5. Open `PhpStorm > Preferences > PHP > Servers` and create a new server:
+4.  Open `PhpStorm > Preferences > PHP > Debug` and ensure Debug Port is set to `9000,9003`.
 
-    * For the Name, set this to the value of your domain name (ex. `magento.local`).
-    * For the Host, set this to the value of your domain name (ex. `magento.local`).
-    * Keep port set to `80`.
-    * Check the "Use path mappings" box and map `src` to the absolute path of `/var/www/html`.
+5.  Open `PhpStorm > Preferences > PHP > Servers` and create a new server:
 
-6. Go to `Run > Edit Configurations` and create a new `PHP Remote Debug` configuration.
+    - For the Name, set this to the value of your domain name (ex. `magento.local`).
+    - For the Host, set this to the value of your domain name (ex. `magento.local`).
+    - Keep port set to `80`.
+    - Check the "Use path mappings" box and map `src` to the absolute path of `/var/www/html`.
 
-    * Set the Name to the name of your domain (ex. `magento.local`).
-    * Check the `Filter debug connection by IDE key` checkbox, select the Server you just setup.
-    * For IDE key, enter `PHPSTORM`. This value should match the IDE Key value set by the Chrome Xdebug Helper.
-    * Click OK to finish setting up the remote debugger in PHPStorm.
+6.  Go to `Run > Edit Configurations` and create a new `PHP Remote Debug` configuration.
 
-7. Open up `pub/index.php` and set a breakpoint near the end of the file.
+    - Set the Name to the name of your domain (ex. `magento.local`).
+    - Check the `Filter debug connection by IDE key` checkbox, select the Server you just setup.
+    - For IDE key, enter `PHPSTORM`. This value should match the IDE Key value set by the Chrome Xdebug Helper.
+    - Click OK to finish setting up the remote debugger in PHPStorm.
 
-    * Start the debugger with `Run > Debug 'magento.local'`, then open up a web browser.
-    * Ensure the Chrome Xdebug helper is enabled by clicking on it and selecting Debug. The icon should turn bright green.
-    * Navigate to your Magento store URL, and Xdebug should now trigger the debugger within PhpStorm at the toggled breakpoint.
+7.  Open up `pub/index.php` and set a breakpoint near the end of the file.
+
+    - Start the debugger with `Run > Debug 'magento.local'`, then open up a web browser.
+    - Ensure the Chrome Xdebug helper is enabled by clicking on it and selecting Debug. The icon should turn bright green.
+    - Navigate to your Magento store URL, and Xdebug should now trigger the debugger within PhpStorm at the toggled breakpoint.
 
 ### SSH
 
 Since version `40.0.0`, this project supports connecting to Docker with SSH/SFTP. This means that if you solely use either PhpStorm or VSCode, you no longer need to selectively mount host volumes in order to gain bi-directional sync capabilities from host to container. This will enable full speed in the native filesystem, as all files will be stored directly in the `appdata` container volume, rather than being synced from the host. This is especially useful if you'd like to sync larger directories such as `generated`, `pub` & `vendor`.
 
-Copy `compose.dev-ssh.yaml` to `compose.dev.yaml` before installing Magento to take advantage of this setup. Then, create an SFTP connection at  Preferences -> Build, Execution, Deployment -> Deployment. Connect to `localhost` and use `app` for the username & password. You can set additional options for working with Magento in PhpStorm at Preferences -> Build, Execution, Deployment -> Deployment -> Options.
+Copy `compose.dev-ssh.yaml` to `compose.dev.yaml` before installing Magento to take advantage of this setup. Then, create an SFTP connection at Preferences -> Build, Execution, Deployment -> Deployment. Connect to `localhost` and use `app` for the username & password. You can set additional options for working with Magento in PhpStorm at Preferences -> Build, Execution, Deployment -> Deployment -> Options.
 
 Note that you must use your IDE's SSH/SFTP functionality, otherwise changes will not be synced. To re-sync your host environment at any time, run:
 
@@ -638,7 +650,7 @@ While we're at it, let's also create an initial LESS file so we have something t
 
 ```css
 body {
-    background: white;
+  background: white;
 }
 ```
 
@@ -668,7 +680,7 @@ Since this is all set, let's update the CSS file to a different background color
 
 ```css
 body {
-    background: blue;
+  background: blue;
 }
 ```
 
